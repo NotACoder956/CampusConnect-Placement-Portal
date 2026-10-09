@@ -1,0 +1,17 @@
+import { db, initDb } from './db.js';
+import { hashPassword } from './auth.js';
+initDb();
+db.exec(`DELETE FROM audit_logs; DELETE FROM applications; DELETE FROM jobs; DELETE FROM companies; DELETE FROM student_profiles; DELETE FROM users;`);
+const addUser=db.prepare('INSERT INTO users(name,email,password_hash,role) VALUES(?,?,?,?)');
+const student=addUser.run('Aarav Sharma','student@campus.com',hashPassword('student123'),'STUDENT').lastInsertRowid;
+const recruiter=addUser.run('Neha Kapoor','recruiter@technova.com',hashPassword('recruiter123'),'RECRUITER').lastInsertRowid;
+const admin=addUser.run('Placement Cell Admin','admin@campus.com',hashPassword('admin123'),'ADMIN').lastInsertRowid;
+db.prepare('INSERT INTO student_profiles(user_id,branch,cgpa,graduation_year,resume_link,phone) VALUES(?,?,?,?,?,?)').run(student,'CSE',8.7,2030,'https://example.com/resume/aarav','9876543210');
+const company=db.prepare('INSERT INTO companies(recruiter_id,name,industry,description,website,approval_status) VALUES(?,?,?,?,?,?)').run(recruiter,'TechNova Solutions','Software & Technology','Product engineering and cloud solutions company.','https://technova.example','PENDING').lastInsertRowid;
+const approvedCompany=db.prepare('INSERT INTO companies(recruiter_id,name,industry,description,website,approval_status,reviewed_by,reviewed_at) VALUES(?,?,?,?,?,?,?,CURRENT_TIMESTAMP)').run(recruiter,'BlueOrbit Analytics','Data & AI','Analytics and AI engineering company.','https://blueorbit.example','APPROVED',admin).lastInsertRowid;
+db.prepare('INSERT INTO jobs(company_id,title,description,location,min_cgpa,allowed_departments,graduation_year,job_type,approval_status) VALUES(?,?,?,?,?,?,?,?,?)').run(company,'Software Engineer Intern','Build APIs, test product features and work with senior engineers.','Bengaluru / Hybrid',8.0,'CSE,IT',2030,'Internship','PENDING');
+const approvedJob=db.prepare('INSERT INTO jobs(company_id,title,description,location,min_cgpa,allowed_departments,graduation_year,job_type,approval_status,reviewed_by,reviewed_at) VALUES(?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)').run(approvedCompany,'Data Engineering Intern','Work on data pipelines, SQL and analytics infrastructure.','Pune / Hybrid',8.0,'CSE,IT,ECE',2030,'Internship','APPROVED',admin).lastInsertRowid;
+db.prepare('INSERT INTO applications(job_id,student_id,status) VALUES(?,?,?)').run(approvedJob,student,'UNDER_REVIEW');
+db.prepare('INSERT INTO audit_logs(reviewer_id,action,entity_type,entity_id,details) VALUES(?,?,?,?,?)').run(admin,'APPROVED','COMPANY',approvedCompany,'BlueOrbit Analytics approved as a placement partner.');
+console.log('Seed complete. Demo accounts: student@campus.com / student123, recruiter@technova.com / recruiter123, admin@campus.com / admin123');
+db.close();
