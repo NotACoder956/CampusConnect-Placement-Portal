@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 const SECRET = process.env.JWT_SECRET || 'campus-placement-demo-secret-change-me';
