@@ -1,21 +1,20 @@
-Dependencies
 node_modules/
 **/node_modules/
 
-# Local environment and secrets
+# Local environment variables and secrets
 .env
-.env.
+.env.*
 !.env.example
 
-# Generated database files
-backend/data/.db
-backend/data/.db-shm
-backend/data/.db-wal
+# Generated SQLite database files
+backend/data/*.db
+backend/data/*.db-shm
+backend/data/*.db-wal
 
 # Build output
 frontend/dist/
 backend/dist/
 
-# macOS and logs
+# macOS files and logs
 .DS_Store
 npm-debug.log*
