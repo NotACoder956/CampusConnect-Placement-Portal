@@ -1,0 +1,21 @@
+Dependencies
+node_modules/
+**/node_modules/
+
+# Local environment and secrets
+.env
+.env.
+!.env.example
+
+# Generated database files
+backend/data/.db
+backend/data/.db-shm
+backend/data/.db-wal
+
+# Build output
+frontend/dist/
+backend/dist/
+
+# macOS and logs
+.DS_Store
+npm-debug.log*
